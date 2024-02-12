@@ -18,6 +18,7 @@ public class PostIdea {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String content;
+    private boolean deleted;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

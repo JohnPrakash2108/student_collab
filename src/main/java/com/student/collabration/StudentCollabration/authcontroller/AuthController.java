@@ -32,4 +32,10 @@ public class AuthController {
         headers.add("Authorization", "Bearer " + response.getToken());
         return ResponseEntity.ok().headers(headers).body(response);
     }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<Void> changePassword(@RequestBody ChangePasswordRequest request) {
+        service.changePassword(request);
+        return ResponseEntity.ok().build();
+    }
 }

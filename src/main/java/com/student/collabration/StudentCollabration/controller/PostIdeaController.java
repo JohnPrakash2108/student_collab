@@ -27,8 +27,14 @@ public class PostIdeaController {
     }
 
     @GetMapping("/get-posts")
-    public ResponseEntity<List<PostIdea>> getUserIdeas(){
-        List<PostIdea> userIdeas = service.getUserIdeas();
+    public ResponseEntity<List<PostIdeaDto>> getUserIdeas(){
+        List<PostIdeaDto> userIdeas = service.getUserIdeas();
         return new ResponseEntity<>(userIdeas,HttpStatus.OK);
+    }
+
+    @DeleteMapping("/delete-post/{id}")
+    public ResponseEntity<?> deletePost(@PathVariable("id") long id){
+        service.deletePost(id);
+        return new ResponseEntity<>("Deleted",HttpStatus.NO_CONTENT);
     }
 }

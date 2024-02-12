@@ -8,6 +8,8 @@ import com.student.collabration.StudentCollabration.repositary.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -62,5 +64,22 @@ public class AuthenticationService {
         return AuthenticationResponse.builder()
                 .token(jwtToken)
                 .build();
+    }
+
+    public void changePassword(ChangePasswordRequest request) {
+        // Get the current user
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        Users currentUser = repository.findByEmailOrUserName(currentUsername, currentUsername)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with username/email: " + currentUsername));
+
+        // Verify the old password
+        if (!passwordEncoder.matches(request.getOldPassword(), currentUser.getPassword())) {
+            throw new IllegalArgumentException("Old password is incorrect");
+        }
+
+        // Update the password
+        currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        repository.save(currentUser);
     }
 }

@@ -42,7 +42,7 @@ public class Users implements UserDetails {
     private List<Comment> comments;
 
     @OneToMany(mappedBy = "user")
-    private List<Like> likes;
+    private List<PostLikes> likes;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

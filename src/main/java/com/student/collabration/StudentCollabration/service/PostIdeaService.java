@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -34,8 +36,10 @@ public class PostIdeaService {
     public void createPost(PostIdeaDto postIdeaDto) {
         // Map the PostIdeaDto to PostIdea
         postIdeaDto.setId(0);
+        String trimmedContent = postIdeaDto.getContent().trim();
+        postIdeaDto.setContent(trimmedContent);
         PostIdea postIdea = modelMapper.map(postIdeaDto, PostIdea.class);
-
+        postIdea.setDeleted(false);
         // Setting createdAt and updatedAt timestamps
         LocalDateTime currentTime = LocalDateTime.now();
         postIdea.setCreatedAt(currentTime);
@@ -43,10 +47,7 @@ public class PostIdeaService {
         Users user = getCurrentUser();
 
         try {
-
-
             postIdea.setUser(user);
-
             // Save the PostIdea to DB
             postIdeaRepository.save(postIdea);
         } catch (UsernameNotFoundException ex) {
@@ -69,19 +70,18 @@ public class PostIdeaService {
         postIdeaRepository.save(postIdea);
     }
 
-    public List<PostIdea> getUserIdeas() {
+    public List<PostIdeaDto> getUserIdeas() {
         List<PostIdea> userIdeas = new ArrayList<>();
-
-
-
             try {
                Users user = getCurrentUser();
-                userIdeas = postIdeaRepository.findByUser(user);
+                userIdeas = postIdeaRepository.findByUserAndDeleted(user,false);
             } catch (UsernameNotFoundException ex) {
                 ex.printStackTrace();
             }
 
-        return userIdeas;
+        return userIdeas.stream()
+                .map(postIdea -> modelMapper.map(postIdea, PostIdeaDto.class))
+                .collect(Collectors.toList());
     }
 
     public Users getCurrentUser(){
@@ -90,5 +90,16 @@ public class PostIdeaService {
         Users user = userRepository.findByEmailOrUserName(currentUsername, currentUsername)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username/email: " + currentUsername));
         return user;
+    }
+
+    public void deletePost(long id) {
+        Optional<PostIdea> optionalPostIdea = postIdeaRepository.findById(id);
+
+        // If the PostIdea exists, set its deleted field to true and save it
+        optionalPostIdea.ifPresent(postIdea -> {
+            postIdea.setDeleted(true);
+            postIdeaRepository.save(postIdea);
+        });
+
     }
 }
