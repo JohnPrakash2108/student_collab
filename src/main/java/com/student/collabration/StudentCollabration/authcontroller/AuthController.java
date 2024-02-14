@@ -20,6 +20,7 @@ public class AuthController {
         AuthenticationResponse response = service.register(request);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + response.getToken());
+
         return ResponseEntity.ok().headers(headers).body(response);
     }
 
@@ -30,6 +31,7 @@ public class AuthController {
         AuthenticationResponse response = service.authenticate(request);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + response.getToken());
+        headers.add("Validate",response.getStatus());
         return ResponseEntity.ok().headers(headers).body(response);
     }
 
@@ -37,5 +39,27 @@ public class AuthController {
     public ResponseEntity<Void> changePassword(@RequestBody ChangePasswordRequest request) {
         service.changePassword(request);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/validate-otp")
+    public ResponseEntity<?> validateOTP(@RequestBody ValidateOTPRequest request) {
+        String email = request.getEmail();
+        String enteredOTP = request.getOtp();
+
+        boolean isValid = service.validateOTP(email, enteredOTP);
+
+        if (isValid) {
+            return ResponseEntity.ok("OTP validation successful");
+        } else {
+            return ResponseEntity.badRequest().body("Invalid OTP");
+        }
+    }
+
+    @PostMapping("/resend-otp")
+    public String resendOTP(@RequestBody ValidateOTPRequest request){
+        request.setOtp("0");
+        String msg = service.resendOTP(request.getEmail());
+        return msg;
+
     }
 }

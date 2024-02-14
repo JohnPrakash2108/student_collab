@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OTP Email Template</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            color: #666;
+        }
+
+        .otp {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Hello, ${name}!</h1>
+    <p>Your One-Time Password (OTP) is:</p>
+    <p class="otp">${otp}</p>
+    <p>Please use this OTP to complete your verification.</p>
+    <p>If you didn't request this OTP, please ignore this email.</p>
+    <p class="footer">This email was sent by Spring Boot.</p>
+</div>
+</body>
+</html>

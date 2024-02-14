@@ -28,6 +28,7 @@ public class Users implements UserDetails {
     private String password;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String otp;
 
     @OneToMany(mappedBy = "user")
     private List<PostIdea> postIdeas;
