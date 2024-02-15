@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Entity
 @Data
@@ -21,10 +22,14 @@ public class Comment {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private Users user;
+    private Users users;
 
     @ManyToOne
     @JoinColumn(name = "post_idea_id")
     private PostIdea postIdea;
+
+
+
+
 }
 

@@ -39,7 +39,7 @@ public class Users implements UserDetails {
     @OneToMany(mappedBy = "receiver")
     private List<Chat> receivedChats;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "users")
     private List<Comment> comments;
 
     @OneToMany(mappedBy = "user")
@@ -58,6 +58,10 @@ public class Users implements UserDetails {
     @Override
     public String getUsername() {
         return email;
+    }
+
+    public String getUName(){
+        return userName;
     }
 
     @Override

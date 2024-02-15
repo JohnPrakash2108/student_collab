@@ -3,9 +3,6 @@ package com.student.collabration.StudentCollabration.authcontroller;
 import com.student.collabration.StudentCollabration.configuration.JwtService;
 import com.student.collabration.StudentCollabration.modal.Users;
 import com.student.collabration.StudentCollabration.repositary.UserRepository;
-import com.student.collabration.StudentCollabration.configuration.JwtService;
-import com.student.collabration.StudentCollabration.repositary.UserRepository;
-import freemarker.core.ParseException;
 import freemarker.template.*;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -174,5 +171,19 @@ public class AuthenticationService {
         repository.save(user);
         sendOTP(user.getEmail(),otp,user.getFirstName()+user.getLastName());
         return "Sent";
+    }
+
+    public void verifyEmail(EmailRequest emailRequest) {
+        String otp = generateOTP();
+
+        // Send OTP to user's email
+        sendOTP(emailRequest.getEmail(), otp,"User");
+
+        var user = Users.builder()
+                .email(emailRequest.getEmail())
+                .otp(otp)
+                .build();
+        repository.save(user);
+
     }
 }

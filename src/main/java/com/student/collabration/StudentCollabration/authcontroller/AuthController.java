@@ -13,6 +13,12 @@ public class AuthController {
 
     private final AuthenticationService service;
 
+    @PostMapping("/email-verify")
+    public ResponseEntity<?> emailVerify(@RequestBody EmailRequest emailRequest){
+        service.verifyEmail(emailRequest);
+        return null;
+    }
+
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
             @RequestBody RegisterRequest request
