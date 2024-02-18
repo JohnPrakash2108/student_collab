@@ -1,6 +1,7 @@
 package com.student.collabration.StudentCollabration.service;
 
 import com.student.collabration.StudentCollabration.dto.PostIdeaDto;
+import com.student.collabration.StudentCollabration.dto.UserDto;
 import com.student.collabration.StudentCollabration.modal.PostIdea;
 import com.student.collabration.StudentCollabration.modal.Users;
 import com.student.collabration.StudentCollabration.repositary.PostIdeaRepository;
@@ -12,10 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -36,20 +34,21 @@ public class PostIdeaService {
     public void createPost(PostIdeaDto postIdeaDto) {
         // Map the PostIdeaDto to PostIdea
         postIdeaDto.setId(0);
+        postIdeaDto.setLikeCount(0);
         String trimmedContent = postIdeaDto.getContent().trim();
         postIdeaDto.setContent(trimmedContent);
-        PostIdea postIdea = modelMapper.map(postIdeaDto, PostIdea.class);
-        postIdea.setDeleted(false);
+        PostIdea postRating = modelMapper.map(postIdeaDto, PostIdea.class);
+        postRating.setDeleted(false);
         // Setting createdAt and updatedAt timestamps
         LocalDateTime currentTime = LocalDateTime.now();
-        postIdea.setCreatedAt(currentTime);
-        postIdea.setUpdatedAt(currentTime);
+        postRating.setCreatedAt(currentTime);
+        postRating.setUpdatedAt(currentTime);
         Users user = getCurrentUser();
 
         try {
-            postIdea.setUser(user);
+            postRating.setUser(user);
             // Save the PostIdea to DB
-            postIdeaRepository.save(postIdea);
+            postIdeaRepository.save(postRating);
         } catch (UsernameNotFoundException ex) {
             ex.printStackTrace();
         }
@@ -57,32 +56,38 @@ public class PostIdeaService {
 
     public void updatePost(PostIdeaDto postIdeaDto) {
         // Retrieve the existing post idea from the database
-        PostIdea postIdea = postIdeaRepository.findById(postIdeaDto.getId())
+        PostIdea postRating = postIdeaRepository.findById(postIdeaDto.getId())
                 .orElseThrow(() -> new NoSuchElementException("Post idea not found with id: " + postIdeaDto.getId()));
 
         // Map the updated values from the DTO to the retrieved entity
-        modelMapper.map(postIdeaDto, postIdea);
+        modelMapper.map(postIdeaDto, postRating);
 
         // Update the 'updatedAt' timestamp
-        postIdea.setUpdatedAt(LocalDateTime.now());
+        postRating.setUpdatedAt(LocalDateTime.now());
 
         // Save the updated post idea back to the database
-        postIdeaRepository.save(postIdea);
+        postIdeaRepository.save(postRating);
     }
 
     public List<PostIdeaDto> getUserIdeas() {
         List<PostIdea> userIdeas = new ArrayList<>();
-            try {
-               Users user = getCurrentUser();
-                userIdeas = postIdeaRepository.findByUserAndDeleted(user,false);
-            } catch (UsernameNotFoundException ex) {
-                ex.printStackTrace();
-            }
+        try {
+            Users user = getCurrentUser();
+            userIdeas = postIdeaRepository.findByUserAndDeletedOrderByCreatedAtDesc(user, false);
+        } catch (UsernameNotFoundException ex) {
+            ex.printStackTrace();
+        }
 
         return userIdeas.stream()
-                .map(postIdea -> modelMapper.map(postIdea, PostIdeaDto.class))
+                .map(postIdea -> {
+                    PostIdeaDto postIdeaDto = modelMapper.map(postIdea, PostIdeaDto.class);
+                    UserDto userDto = modelMapper.map(postIdea.getUser(), UserDto.class);
+                    postIdeaDto.setUserDto(userDto);
+                    return postIdeaDto;
+                })
                 .collect(Collectors.toList());
     }
+
 
     public Users getCurrentUser(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -102,4 +107,39 @@ public class PostIdeaService {
         });
 
     }
+
+    public List<PostIdeaDto> getAllPosts() {
+        List<PostIdea> userIdeas = new ArrayList<>();
+        try {
+            userIdeas = postIdeaRepository.findAllByDeletedFalseOrderByCreatedAtDesc();
+
+        } catch (UsernameNotFoundException ex) {
+            ex.printStackTrace();
+        }
+
+        return userIdeas.stream()
+                .map(postIdea -> {
+                    PostIdeaDto postIdeaDto = modelMapper.map(postIdea, PostIdeaDto.class);
+                    UserDto userDto = modelMapper.map(postIdea.getUser(), UserDto.class);
+                    postIdeaDto.setUserDto(userDto);
+                    return postIdeaDto;
+                })
+                .collect(Collectors.toList());
+    }
+
+    public List<PostIdeaDto> getAllPostsById(long id){
+        Optional<PostIdea> postIdeaOptional = postIdeaRepository.findById(id);
+
+        if (postIdeaOptional.isPresent()) {
+            PostIdea postIdea = postIdeaOptional.get();
+            PostIdeaDto postIdeaDto = modelMapper.map(postIdea, PostIdeaDto.class);
+            UserDto userDto = modelMapper.map(postIdea.getUser(), UserDto.class);
+            postIdeaDto.setUserDto(userDto);
+            return Collections.singletonList(postIdeaDto);
+        } else {
+            // If the post doesn't exist, you can return an empty list or throw an exception
+            return Collections.emptyList();
+        }
+    }
+
 }

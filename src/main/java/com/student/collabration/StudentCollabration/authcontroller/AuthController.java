@@ -66,6 +66,5 @@ public class AuthController {
         request.setOtp("0");
         String msg = service.resendOTP(request.getEmail());
         return msg;
-
     }
 }

@@ -37,4 +37,16 @@ public class PostIdeaController {
         service.deletePost(id);
         return new ResponseEntity<>("Deleted",HttpStatus.NO_CONTENT);
     }
+
+    @GetMapping("/get-all-posts")
+    public ResponseEntity<List<PostIdeaDto>> getAllIdeas(){
+        List<PostIdeaDto> userIdeas = service.getAllPosts();
+        return new ResponseEntity<>(userIdeas,HttpStatus.OK);
+    }
+
+    @GetMapping("/getUserPosts/{id}")
+    public ResponseEntity<List<PostIdeaDto>> getUserPosts(@PathVariable("id") long userId){
+        List<PostIdeaDto> userIdeas = service.getAllPostsById(userId);
+        return new ResponseEntity<>(userIdeas,HttpStatus.OK);
+    }
 }

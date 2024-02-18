@@ -1,5 +1,7 @@
 package com.student.collabration.StudentCollabration.modal;
 
+import com.student.collabration.StudentCollabration.modal.PostIdea;
+import com.student.collabration.StudentCollabration.modal.Users;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +18,9 @@ public class PostLikes {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
     private LocalDateTime createdAt;
+    private long likeCount;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -26,4 +30,3 @@ public class PostLikes {
     @JoinColumn(name = "post_idea_id")
     private PostIdea postIdea;
 }
-

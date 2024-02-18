@@ -17,10 +17,13 @@ public class PostIdea {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    @Column(length = 2000)
     private String content;
     private boolean deleted;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String category;
+    private long likeCount;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

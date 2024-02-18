@@ -8,6 +8,7 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +18,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -40,6 +42,11 @@ public class AuthenticationService {
     private Configuration freemarkerConfig;
 
     public AuthenticationResponse register(RegisterRequest request) {
+        // Check if email or username already exists
+        if (repository.existsByEmail(request.getEmail()) || repository.existsByUserName(request.getUserName())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email or username already exists");
+        }
+
         // Generate OTP
         String otp = generateOTP();
 
@@ -61,6 +68,7 @@ public class AuthenticationService {
                 .token(jwtToken)
                 .build();
     }
+
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         // Check if the request contains email or username
@@ -85,6 +93,7 @@ public class AuthenticationService {
             // Return authentication response
             return AuthenticationResponse.builder()
                     .token(jwtToken)
+                    .id(user.getId())
                     .status(user.getOtp().equals("0")?"Validated":"Not Validated")
                     .build();
 

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class AuthenticationResponse {
-
+    private long id;
     private String token;
     private String status;
 }

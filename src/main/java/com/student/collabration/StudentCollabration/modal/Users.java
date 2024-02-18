@@ -31,7 +31,7 @@ public class Users implements UserDetails {
     private String otp;
 
     @OneToMany(mappedBy = "user")
-    private List<PostIdea> postIdeas;
+    private List<PostIdea> postRatings;
 
     @OneToMany(mappedBy = "sender")
     private List<Chat> sentChats;
